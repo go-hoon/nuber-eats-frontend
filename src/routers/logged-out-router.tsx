@@ -1,3 +1,15 @@
 import React from "react";
+import { isLoggedInVar } from "../apollo";
 
-export const LoggedOutRouter = () => <h2>Logged Out</h2>;
+export const LoggedOutRouter = () => {
+  const onClick = () => {
+    isLoggedInVar(true);
+  };
+
+  return (
+    <div>
+      <h1>Logged Out</h1>
+      <button onClick={onClick}>Click to login</button>
+    </div>
+  );
+};
