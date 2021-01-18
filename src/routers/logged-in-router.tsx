@@ -6,10 +6,5 @@ export const LoggedInRouter = () => {
   const onClick = () => {
     isLoggedInVar(false);
   };
-  return (
-    <div>
-      <h1>Logged In</h1>
-      <button onClick={onClick}>Click to log out</button>
-    </div>
-  );
+  return <span className="h-sc"></span>;
 };
