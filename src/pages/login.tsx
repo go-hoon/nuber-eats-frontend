@@ -1,5 +1,6 @@
 import { ApolloError, gql, useMutation } from "@apollo/client";
 import React from "react";
+import Helmet from "react-helmet";
 import { useForm } from "react-hook-form";
 import { FormError } from "../components/form-error";
 import {
@@ -70,6 +71,9 @@ export const Login = () => {
 
   return (
     <div className="h-screen flex items-center flex-col mt-10 lg:mt-28">
+      <Helmet>
+        <title>Login | Nuber Eats</title>
+      </Helmet>
       <div className="w-full max-w-screen-sm flex flex-col items-center px-5">
         <img src={nuberLogo} alt="logo" className="w-52 mb-10" />
         <h4 className="w-full font-medium text-left text-3xl mb-5">
@@ -115,7 +119,7 @@ export const Login = () => {
         </form>
         <div>
           New to Nuber?{" "}
-          <Link to="/creat-account" className="text-lime-600 hover:underline">
+          <Link to="/create-account" className="text-lime-600 hover:underline">
             Create an account
           </Link>
         </div>
