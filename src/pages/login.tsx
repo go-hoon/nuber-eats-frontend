@@ -6,6 +6,7 @@ import {
   loginMutation,
   loginMutationVariables,
 } from "../__generated/loginMutation";
+import nuberLogo from "../images/logo.svg";
 
 const LOGIN_MUTATION = gql`
   mutation loginMutation($loginInput: LoginInput!) {
@@ -60,11 +61,14 @@ export const Login = () => {
   };
 
   return (
-    <div className="h-screen flex items-center justify-center bg-gray-800">
-      <div className="bg-white w-full max-w-lg py-10 rounded-lg text-center">
-        <h3 className="text-2xl text-gray-800">Log In</h3>
+    <div className="h-screen flex items-center flex-col mt-10 lg:mt-28">
+      <div className="w-full max-w-screen-sm flex flex-col items-center px-5">
+        <img src={nuberLogo} alt="logo" className="w-52 mb-10" />
+        <h4 className="w-full font-medium text-left text-3xl mb-5">
+          Welcome back
+        </h4>
         <form
-          className="grid gap-3 mt-5 px-5"
+          className="grid gap-3 mt-5 w-full"
           onSubmit={handleSubmit(onSubmit)}
         >
           <input
@@ -72,7 +76,7 @@ export const Login = () => {
             name="email"
             type="email"
             placeholder="Email"
-            className="input"
+            className="input transition-colors"
           ></input>
           {errors.email?.message && (
             <FormError errorMessage={errors.email.message} />
@@ -92,7 +96,7 @@ export const Login = () => {
               errorMessage={"Passwords should be more than 10 chars"}
             />
           )}
-          <button className="btn mt-3">
+          <button className="mt-3 py-4 text-lg font-medium text-white bg-green-600 hover:bg-green-700 transition-colors">
             {loading ? "Loading..." : "Login"}
           </button>
           {loginMutationResult?.login?.error && (
