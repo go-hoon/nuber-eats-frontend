@@ -1,4 +1,4 @@
-import { gql, useMutation } from "@apollo/client";
+import { ApolloError, gql, useMutation } from "@apollo/client";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { FromError } from "../components/form-error";
@@ -8,8 +8,8 @@ import {
 } from "../__generated/loginMutation";
 
 const LOGIN_MUTATION = gql`
-  mutation loginMutation($email: String!, $password: String!) {
-    login(input: { email: $email, password: $password }) {
+  mutation loginMutation($loginInput: LoginInput!) {
+    login(input: $loginInput) {
       ok
       token
       error
@@ -18,21 +18,49 @@ const LOGIN_MUTATION = gql`
 `;
 
 interface ILoginForm {
-  email?: string;
-  password?: string;
+  email: string;
+  password: string;
 }
 
 export const Login = () => {
-  const { register, getValues, errors, handleSubmit } = useForm<ILoginForm>();
-  const [loginMutation, { loading, error, data }] = useMutation<
+  const {
+    register,
+    getValues,
+    errors,
+    watch,
+    handleSubmit,
+  } = useForm<ILoginForm>();
+
+  const onCompleted = (data: loginMutation) => {
+    if (data.login.ok) {
+      const {
+        login: { error, ok, token },
+      } = data;
+      if (ok) {
+        console.log(token);
+      }
+    }
+  };
+  const onError = (error: ApolloError) => {};
+
+  const [loginMutation, { data: loginMutationResult }] = useMutation<
     loginMutation,
     loginMutationVariables
-  >(LOGIN_MUTATION);
+  >(LOGIN_MUTATION, {
+    onCompleted,
+    onError,
+  });
 
   const onSubmit = () => {
-    console.log(getValues());
     const { email, password } = getValues();
-    loginMutation({ variables: { email, password } });
+    loginMutation({
+      variables: {
+        loginInput: {
+          email,
+          password,
+        },
+      },
+    });
   };
 
   return (
@@ -69,6 +97,9 @@ export const Login = () => {
             />
           )}
           <button className="btn mt-3">Log In</button>
+          {loginMutationResult?.login?.error && (
+            <FromError errorMessage={loginMutationResult.login.error} />
+          )}
         </form>
       </div>
     </div>
