@@ -1,7 +1,7 @@
 import { ApolloError, gql, useMutation } from "@apollo/client";
 import React from "react";
 import { useForm } from "react-hook-form";
-import { FromError } from "../components/form-error";
+import { FormError } from "../components/form-error";
 import {
   loginMutation,
   loginMutationVariables,
@@ -23,18 +23,12 @@ interface ILoginForm {
 }
 
 export const Login = () => {
-  const {
-    register,
-    getValues,
-    errors,
-    watch,
-    handleSubmit,
-  } = useForm<ILoginForm>();
+  const { register, getValues, errors, handleSubmit } = useForm<ILoginForm>();
 
   const onCompleted = (data: loginMutation) => {
     if (data.login.ok) {
       const {
-        login: { error, ok, token },
+        login: { ok, token },
       } = data;
       if (ok) {
         console.log(token);
@@ -43,7 +37,7 @@ export const Login = () => {
   };
   const onError = (error: ApolloError) => {};
 
-  const [loginMutation, { data: loginMutationResult }] = useMutation<
+  const [loginMutation, { data: loginMutationResult, loading }] = useMutation<
     loginMutation,
     loginMutationVariables
   >(LOGIN_MUTATION, {
@@ -52,15 +46,17 @@ export const Login = () => {
   });
 
   const onSubmit = () => {
-    const { email, password } = getValues();
-    loginMutation({
-      variables: {
-        loginInput: {
-          email,
-          password,
+    if (!loading) {
+      const { email, password } = getValues();
+      loginMutation({
+        variables: {
+          loginInput: {
+            email,
+            password,
+          },
         },
-      },
-    });
+      });
+    }
   };
 
   return (
@@ -79,7 +75,7 @@ export const Login = () => {
             className="input"
           ></input>
           {errors.email?.message && (
-            <FromError errorMessage={errors.email.message} />
+            <FormError errorMessage={errors.email.message} />
           )}
           <input
             ref={register({ required: "Password is required" })}
@@ -89,16 +85,18 @@ export const Login = () => {
             className="input mt-3"
           ></input>
           {errors.password?.message && (
-            <FromError errorMessage={errors.password?.message} />
+            <FormError errorMessage={errors.password?.message} />
           )}
           {errors.password?.type === "minLength" && (
-            <FromError
+            <FormError
               errorMessage={"Passwords should be more than 10 chars"}
             />
           )}
-          <button className="btn mt-3">Log In</button>
+          <button className="btn mt-3">
+            {loading ? "Loading..." : "Login"}
+          </button>
           {loginMutationResult?.login?.error && (
-            <FromError errorMessage={loginMutationResult.login.error} />
+            <FormError errorMessage={loginMutationResult.login.error} />
           )}
         </form>
       </div>
