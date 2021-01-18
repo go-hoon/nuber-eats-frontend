@@ -1,5 +1,21 @@
+import { gql, useMutation } from "@apollo/client";
 import React from "react";
 import { useForm } from "react-hook-form";
+import { FromError } from "../components/form-error";
+import {
+  loginMutation,
+  loginMutationVariables,
+} from "../__generated/loginMutation";
+
+const LOGIN_MUTATION = gql`
+  mutation loginMutation($email: String!, $password: String!) {
+    login(input: { email: $email, password: $password }) {
+      ok
+      token
+      error
+    }
+  }
+`;
 
 interface ILoginForm {
   email?: string;
@@ -7,9 +23,16 @@ interface ILoginForm {
 }
 
 export const Login = () => {
-  const { register, getValues, errors, handleSubmit } = useForm();
+  const { register, getValues, errors, handleSubmit } = useForm<ILoginForm>();
+  const [loginMutation, { loading, error, data }] = useMutation<
+    loginMutation,
+    loginMutationVariables
+  >(LOGIN_MUTATION);
+
   const onSubmit = () => {
     console.log(getValues());
+    const { email, password } = getValues();
+    loginMutation({ variables: { email, password } });
   };
 
   return (
@@ -28,21 +51,22 @@ export const Login = () => {
             className="input"
           ></input>
           {errors.email?.message && (
-            <span className="text-medium text-red-500">
-              {errors.email.message}
-            </span>
+            <FromError errorMessage={errors.email.message} />
           )}
           <input
-            ref={register({ required: "Password is required", minLength: 10 })}
+            ref={register({ required: "Password is required" })}
             name="password"
             type="password"
             placeholder="Password"
             className="input mt-3"
           ></input>
+          {errors.password?.message && (
+            <FromError errorMessage={errors.password?.message} />
+          )}
           {errors.password?.type === "minLength" && (
-            <span className="text-medium text-red-500">
-              Password must be more than 10 chars.
-            </span>
+            <FromError
+              errorMessage={"Passwords should be more than 10 chars"}
+            />
           )}
           <button className="btn mt-3">Log In</button>
         </form>
