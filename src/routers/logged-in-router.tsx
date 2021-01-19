@@ -6,5 +6,5 @@ export const LoggedInRouter = () => {
   const onClick = () => {
     isLoggedInVar(false);
   };
-  return <span className="h-sc"></span>;
+  return <span className="">LoggedInRoute</span>;
 };

@@ -29,7 +29,7 @@
     "web-vitals": "^0.2.4"
   },
   "scripts": {
-    "apollo:codegen": "rimraf scr/__generated && apollo client:codegen src/__generated --target=typescript --outputFlat",
+    "apollo:codegen": "rimraf src/__generated && apollo client:codegen src/__generated --target=typescript --outputFlat",
     "tailwind:build": "tailwind build ./src/styles/tailwind.css -o ./src/styles/styles.css",
     "start": "yarn apollo:codegen && yarn tailwind:build & react-scripts start",
     "build": "react-scripts build",
