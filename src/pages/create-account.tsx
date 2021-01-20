@@ -41,7 +41,6 @@ export const CreateAccount = () => {
     defaultValues: { role: UserRole.Client },
   });
 
-  const onError = (error: ApolloError) => {};
   const history = useHistory();
   const onCompleted = (data: createAccountMutation) => {
     const {
@@ -49,7 +48,7 @@ export const CreateAccount = () => {
     } = data;
     if (ok) {
       alert("Account is created! Login now!");
-      history.push("/login");
+      history.push("/");
     }
   };
 
@@ -145,7 +144,7 @@ export const CreateAccount = () => {
         </form>
         <div>
           Already have an account?{" "}
-          <Link to="/login" className="text-lime-600 hover:underline">
+          <Link to="/" className="text-lime-600 hover:underline">
             Login now
           </Link>
         </div>
