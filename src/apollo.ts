@@ -13,7 +13,6 @@ export const authTokenVar = makeVar(token);
 
 const httpLink = createHttpLink({ uri: "http://localhost:4000/graphql" });
 const authLink = setContext((_, { headers }) => {
-  console.log(headers);
   return {
     headers: {
       ...headers,

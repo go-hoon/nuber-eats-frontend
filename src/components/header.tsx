@@ -23,7 +23,7 @@ export const Header: React.FC<IHeaderProps> = ({ email }) => {
         <div className="w-full px-5 xl:px-0 max-w-screen-xl mx-auto flex justify-between items-center">
           <img src={nuberLogo} alt="logo" className="w-36" />
           <span className="text-xs">
-            <Link to="/users/my-profile">
+            <Link to="/edit-profile">
               <FontAwesomeIcon icon={faUser} className="text-xl" />
             </Link>
           </span>
