@@ -2,9 +2,9 @@ import { gql, useQuery } from "@apollo/client";
 import React, { useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { useForm } from "react-hook-form";
-import { useHistory } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import { Restaurant } from "../../components/restaurant";
-import { RESTAURANTS_FRAGMENT } from "../../fragments";
+import { CATEGORY_FRAGMENT, RESTAURANTS_FRAGMENT } from "../../fragments";
 import {
   restaurantsPageQuery,
   restaurantsPageQueryVariables,
@@ -16,11 +16,7 @@ const RESTAURANTS_QUERY = gql`
       ok
       error
       categories {
-        id
-        name
-        coverImg
-        slug
-        restaurantCount
+        ...CategoryParts
       }
     }
     restaurants(input: $input) {
@@ -34,6 +30,7 @@ const RESTAURANTS_QUERY = gql`
     }
   }
   ${RESTAURANTS_FRAGMENT}
+  ${CATEGORY_FRAGMENT}
 `;
 
 interface IFormProps {
@@ -82,18 +79,20 @@ export const Restaurants = () => {
         <div className="max-w-screen-xl mx-auto mt-8 px-5 pb-20 xl:px-0">
           <div className="flex justify-center mx-auto overflow-x-auto">
             {data?.allCategories.categories?.map((category) => (
-              <div
-                key={category.id}
-                className="flex flex-col items-center mx-4 lg:mx-8 group"
-              >
+              <Link to={`/category/${category.slug}`}>
                 <div
-                  className="w-14 h-14 rounded-full bg-cover group-hover:bg-gray-200 cursor-pointer"
-                  style={{ backgroundImage: `url(${category.coverImg})` }}
-                ></div>
-                <span className="mt-1 text-sm flex flex-col items-center font-medium cursor-pointer">
-                  {category.name}
-                </span>
-              </div>
+                  key={category.id}
+                  className="flex flex-col items-center mx-4 lg:mx-8 group"
+                >
+                  <div
+                    className="w-14 h-14 rounded-full bg-cover group-hover:bg-gray-200 cursor-pointer"
+                    style={{ backgroundImage: `url(${category.coverImg})` }}
+                  ></div>
+                  <span className="mt-1 text-sm flex flex-col items-center font-medium cursor-pointer">
+                    {category.name}
+                  </span>
+                </div>
+              </Link>
             ))}
           </div>
           <div className="grid mt-12 md:grid-cols-3 gap-x-5 gap-y-10">
