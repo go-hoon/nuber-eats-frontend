@@ -25,7 +25,26 @@ export const Restaurant = () => {
       variables: { input: { restaurantId: +id } },
     }
   );
+  console.log(data?.restaurant.restaurant?.category);
 
-  console.log(data);
-  return <h1>Restaurant</h1>;
+  return (
+    <div>
+      <div
+        className="bg-gray-800 py-40 bg-cover"
+        style={{
+          backgroundImage: `url(${data?.restaurant.restaurant?.coverImg})`,
+        }}
+      >
+        <div className="bg-white w-3/12 pl-44 pr-6 py-4">
+          <h4 className="text-4xl mb-3">{data?.restaurant.restaurant?.name}</h4>
+          <h5 className="text-sm font-light">
+            {data?.restaurant.restaurant?.category?.name}
+          </h5>
+          <h6 className="text-sm font-light">
+            {data?.restaurant.restaurant?.address}
+          </h6>
+        </div>
+      </div>
+    </div>
+  );
 };
