@@ -37,8 +37,8 @@
     "tailwind:build": "tailwind build ./src/styles/tailwind.css -o ./src/styles/styles.css",
     "start": "yarn apollo:codegen && yarn tailwind:build & react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test",
-    "test:cov":"npm test -- --coverage --watchAll=false",
+    "test": "react-scripts test --verbose",
+    "test:cov": "npm test -- --coverage --watchAll=false",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
