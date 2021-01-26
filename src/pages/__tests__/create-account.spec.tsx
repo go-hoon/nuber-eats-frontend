@@ -4,9 +4,22 @@ import React from "react";
 import { CreateAccount } from "../create-account";
 import { render, waitFor, RenderResult } from "../../test-utils";
 import userEvent from "@testing-library/user-event";
-import { getRoles } from "@testing-library/react";
 import { UserRole } from "../../__generated/globalTypes";
 import { CREAT_ACCOUNT_MUTATION } from "../create-account";
+
+const mockPush = jest.fn();
+
+jest.mock("react-router-dom", () => {
+  const realModule = jest.requireActual("react-router-dom");
+  return {
+    ...realModule,
+    useHistory: () => {
+      return {
+        push: mockPush,
+      };
+    },
+  };
+});
 
 describe("<CreateAccount />", () => {
   let mockedClient: MockApolloClient;
@@ -23,6 +36,10 @@ describe("<CreateAccount />", () => {
     });
   });
 
+  afterAll(() => {
+    jest.clearAllMocks();
+  });
+
   it("renders OK", async () => {
     await waitFor(() =>
       expect(document.title).toBe("Create Account | Nuber Eats")
@@ -32,7 +49,6 @@ describe("<CreateAccount />", () => {
   it("renders validation errors", async () => {
     const { getByRole, getByPlaceholderText } = renderResult;
     const email = getByPlaceholderText(/email/i);
-    const password = getByPlaceholderText(/password/i);
     const button = getByRole("button");
     await waitFor(() => {
       userEvent.type(email, "won@work");
@@ -87,5 +103,6 @@ describe("<CreateAccount />", () => {
     });
     const mutationError = getByRole("alert");
     expect(mutationError).toHaveTextContent("mutation-error");
+    expect(mockPush).toHaveBeenCalledWith("/");
   });
 });
