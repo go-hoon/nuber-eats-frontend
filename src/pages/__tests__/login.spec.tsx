@@ -87,4 +87,35 @@ describe("<Login />", () => {
       },
     });
   });
+
+  it("display mutation error", async () => {
+    const { getByPlaceholderText, getByRole } = renderResult;
+    const email = getByPlaceholderText(/email/i);
+    const password = getByPlaceholderText(/password/i);
+    const submitButton = getByRole("button");
+    const formData = {
+      email: "real@test.com",
+      password: "12345",
+    };
+    const mockedMutationResponse = jest.fn().mockResolvedValue({
+      data: {
+        login: { ok: true, token: "XXX", error: "mutation error" },
+      },
+    });
+    mockedClient.setRequestHandler(LOGIN_MUTATION, mockedMutationResponse);
+    await waitFor(() => {
+      userEvent.type(email, formData.email);
+      userEvent.type(password, formData.password);
+      userEvent.click(submitButton);
+    });
+    expect(mockedMutationResponse).toHaveBeenCalledTimes(1);
+    expect(mockedMutationResponse).toHaveBeenCalledWith({
+      loginInput: {
+        email: formData.email,
+        password: formData.password,
+      },
+    });
+    const errorMessage = getByRole("alert");
+    expect(errorMessage).toHaveTextContent(/mutation error/i);
+  });
 });
