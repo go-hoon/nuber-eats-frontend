@@ -26,6 +26,7 @@ describe("<Login />", () => {
       );
     });
   });
+
   it("should render OK", async () => {
     await waitFor(() => {
       expect(document.title).toBe("Login | Nuber Eats");
