@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/no-redundant-roles */
 import React from "react";
 
 interface IButtonProps {
@@ -13,6 +14,7 @@ export const Button: React.FC<IButtonProps> = ({
 }) => {
   return (
     <button
+      role="button"
       className={`${
         canClick
           ? "bg-lime-500 hover:bg-lime-600"
