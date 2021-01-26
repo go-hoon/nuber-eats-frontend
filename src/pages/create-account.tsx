@@ -13,7 +13,7 @@ import {
 } from "../__generated/createAccountMutation";
 import { isLoggedInVar } from "../apollo";
 
-const CREAT_ACCOUNT_MUTATION = gql`
+export const CREAT_ACCOUNT_MUTATION = gql`
   mutation createAccountMutation($createAccountInput: CreateAccountInput!) {
     createAccount(input: $createAccountInput) {
       ok
