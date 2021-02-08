@@ -36,9 +36,7 @@ describe("Create Account", () => {
     user.findByPlaceholderText(/password/i).type("real@mail.com");
     user.findByRole("button").click();
     user.wait(1000);
-    user.title().should("eq", "Login | Nuber Eats");
-    user.findByPlaceholderText(/email/i).type("real3@mail.com");
-    user.findByPlaceholderText(/password/i).type("real@mail.com");
-    user.findByRole("button").click();
+    // @ts-ignore
+    user.login("test@test.com", "12345");
   });
 });
