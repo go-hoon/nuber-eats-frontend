@@ -21,14 +21,19 @@ export const MY_RESTAURANTS_QUERY = gql`
 
 export const MyRestaurants = () => {
   const { data } = useQuery<myRestaurants>(MY_RESTAURANTS_QUERY);
-  const client = useApolloClient();
-  useEffect(() => {
-    const queryResult = client.readQuery({ query: MY_RESTAURANTS_QUERY });
-    client.writeQuery({
-      quer: MY_RESTAURANTS_QUERY,
-      data: {},
-    });
-  });
+
+  //   useEffect(() => {
+  //     const queryResult = client.readQuery({ query: MY_RESTAURANTS_QUERY });
+  //     client.writeQuery({
+  //       query: MY_RESTAURANTS_QUERY,
+  //       data: {
+  //         myRestaurants: {
+  //           ...queryResult.myRestaurants,
+  //           restaurants: [{ name: "fake guy" }],
+  //         },
+  //       },
+  //     });
+  //   });
   return (
     <div>
       <Helmet>

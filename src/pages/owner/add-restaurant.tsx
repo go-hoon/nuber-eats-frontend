@@ -1,7 +1,9 @@
-import { gql, useMutation } from "@apollo/client";
+import { gql, useApolloClient, useMutation } from "@apollo/client";
+import { cli } from "cypress";
 import React, { useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { useForm } from "react-hook-form";
+import { useHistory } from "react-router-dom";
 import { Button } from "../../components/button";
 import { FormError } from "../../components/form-error";
 import {
@@ -28,14 +30,44 @@ interface IFormProps {
 }
 
 export const AddRestaurant = () => {
+  const [imageUrl, setImageUrl] = useState(undefined);
+  const client = useApolloClient();
+  const history = useHistory();
   const onCompleted = (data: createRestaurant) => {
     const {
       createRestaurant: { ok, error, restaurantId },
     } = data;
     if (ok) {
+      const { name, categoryName, address } = getValues();
       setUploading(false);
+      const queryResult = client.readQuery({ query: MY_RESTAURANTS_QUERY });
+      client.writeQuery({
+        query: MY_RESTAURANTS_QUERY,
+        data: {
+          myRestaurants: {
+            ...queryResult.myRestaurants,
+            restaurants: [
+              {
+                address,
+                category: {
+                  name: categoryName,
+                  __typename: "Category",
+                },
+                coverImg: imageUrl,
+                id: restaurantId,
+                isPromoted: false,
+                name,
+                __typename: "Restaurant",
+              },
+              ...queryResult.myRestaurants.restaurants,
+            ],
+          },
+        },
+      });
+      history.push("/");
     }
   };
+
   const [createRestaurantMutaion, { data, loading }] = useMutation<
     createRestaurant,
     createRestaurantVariables
@@ -65,6 +97,7 @@ export const AddRestaurant = () => {
           body: formBody,
         })
       ).json();
+      setImageUrl(url);
       createRestaurantMutaion({
         variables: { input: { address, name, categoryName, coverImg: url } },
       });
