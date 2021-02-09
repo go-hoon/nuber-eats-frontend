@@ -1,8 +1,9 @@
 import { gql, useMutation } from "@apollo/client";
-import React from "react";
+import React, { useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { useForm } from "react-hook-form";
 import { Button } from "../../components/button";
+import { FormError } from "../../components/form-error";
 import {
   createRestaurant,
   createRestaurantVariables,
@@ -21,13 +22,22 @@ interface IFormProps {
   name: string;
   address: string;
   categoryName: string;
+  file: FileList;
 }
 
 export const AddRestaurant = () => {
+  const onCompleted = (data: createRestaurant) => {
+    const {
+      createRestaurant: { ok, error },
+    } = data;
+    if (ok) {
+      setUploading(false);
+    }
+  };
   const [createRestaurantMutaion, { data, loading }] = useMutation<
     createRestaurant,
     createRestaurantVariables
-  >(CREATE_RESTAURANT_MUTATION);
+  >(CREATE_RESTAURANT_MUTATION, { onCompleted });
   const {
     register,
     getValues,
@@ -35,9 +45,27 @@ export const AddRestaurant = () => {
     errors,
     handleSubmit,
   } = useForm<IFormProps>({ mode: "onChange" });
+  const [uploading, setUploading] = useState(false);
 
-  const onSubmit = (values: any) => {
-    console.log(values);
+  const onSubmit = async () => {
+    try {
+      setUploading(true);
+      const { address, name, categoryName, file } = getValues();
+      const actualFile = file[0];
+      const formBody = new FormData();
+      formBody.append("file", actualFile);
+      const { url } = await (
+        await fetch("http://localhost:4000/uploads/", {
+          method: "POST",
+          body: formBody,
+        })
+      ).json();
+      createRestaurantMutaion({
+        variables: { input: { address, name, categoryName, coverImg: url } },
+      });
+    } catch (e) {
+      console.log(e);
+    }
   };
 
   return (
@@ -68,11 +96,22 @@ export const AddRestaurant = () => {
           placeholder="Category Name"
           ref={register({ required: "Category name is required" })}
         ></input>
+        <div>
+          <input
+            type="file"
+            name="file"
+            accept="image/*"
+            ref={register({ required: true })}
+          />
+        </div>
         <Button
-          loading={loading}
+          loading={uploading}
           canClick={formState.isValid}
           actionText="Create Restaurant"
         />
+        {data?.createRestaurant.error && (
+          <FormError errorMessage={data.createRestaurant.error} />
+        )}
       </form>
     </div>
   );
