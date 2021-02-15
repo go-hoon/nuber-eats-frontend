@@ -2,12 +2,26 @@ import { gql, useQuery } from "@apollo/client";
 import React from "react";
 import { Link, useParams } from "react-router-dom";
 import { Dish } from "../../components/dish";
-import { DISH_FRAGMENT, RESTAURANTS_FRAGMENT } from "../../fragments";
+import {
+  DISH_FRAGMENT,
+  ORDERS_FRAGMENT,
+  RESTAURANTS_FRAGMENT,
+} from "../../fragments";
 import {
   myRestaurant,
   myRestaurantVariables,
 } from "../../__generated/myRestaurant";
-import { VictoryAxis, VictoryBar, VictoryChart, VictoryPie } from "victory";
+import {
+  VictoryAxis,
+  VictoryBar,
+  VictoryChart,
+  VictoryLabel,
+  VictoryLine,
+  VictoryPie,
+  VictoryTheme,
+  VictoryTooltip,
+  VictoryVoronoiContainer,
+} from "victory";
 
 const MY_RESTAURANT_QUERY = gql`
   query myRestaurant($input: MyRestaurantInput!) {
@@ -19,11 +33,15 @@ const MY_RESTAURANT_QUERY = gql`
         menu {
           ...DishParts
         }
+        orders {
+          ...OrderParts
+        }
       }
     }
   }
   ${RESTAURANTS_FRAGMENT}
   ${DISH_FRAGMENT}
+  ${ORDERS_FRAGMENT}
 `;
 
 interface IParams {
@@ -88,8 +106,41 @@ export const MyResatuarnt = () => {
         </div>
         <div className="mt-20">
           <h4 className="text-center text-2xl font-medium">Sales</h4>
-          <div className="max-w-md w-full mx-auto">
-            <VictoryPie data={chartData} />
+          <div className="mt-10">
+            <VictoryChart
+              width={window.innerWidth}
+              height={500}
+              domainPadding={50}
+              containerComponent={<VictoryVoronoiContainer />}
+              theme={VictoryTheme.material}
+            >
+              <VictoryLine
+                labels={({ datum }) => `$${datum.y}`}
+                labelComponent={
+                  <VictoryTooltip
+                    renderInPortal
+                    style={{ fontSize: 18 }}
+                    dy={-25}
+                  />
+                }
+                data={data?.myRestaurant.restaurant.orders?.map((order) => ({
+                  x: order.createdAt,
+                  y: order.total,
+                }))}
+                interpolation="natural"
+                style={{ data: { strokeWidth: 5 } }}
+              />
+              <VictoryAxis
+                tickLabelComponent={<VictoryLabel renderInPortal />}
+                style={{ tickLabels: { fontSize: 16, angle: 45 } }}
+                tickFormat={(tick) => new Date(tick).toLocaleDateString("ko")}
+              />
+              <VictoryAxis
+                style={{ tickLabels: { fontSize: 16, fill: "#4D7C0F" } }}
+                dependentAxis
+                tickFormat={(tick) => `$${tick}`}
+              />
+            </VictoryChart>
           </div>
         </div>
       </div>
