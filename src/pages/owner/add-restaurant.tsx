@@ -1,5 +1,4 @@
 import { gql, useApolloClient, useMutation } from "@apollo/client";
-import { cli } from "cypress";
 import React, { useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { useForm } from "react-hook-form";
