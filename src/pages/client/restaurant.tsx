@@ -1,8 +1,9 @@
 import { gql, useQuery } from "@apollo/client";
-import React from "react";
+import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import { Dish } from "../../components/dish";
 import { DISH_FRAGMENT, RESTAURANTS_FRAGMENT } from "../../fragments";
+import { CreateOrderItemInput } from "../../__generated/globalTypes";
 import { restaurant, restaurantVariables } from "../../__generated/restaurant";
 
 const RESTAURANT_QUERY = gql`
@@ -22,12 +23,29 @@ const RESTAURANT_QUERY = gql`
   ${DISH_FRAGMENT}
 `;
 
+const CREATE_ORDER_MUTATION = gql`
+  mutation createOrder($input: CreateOrderInput!) {
+    createOrder(input: $input) {
+      ok
+      error
+    }
+  }
+`;
+
 export const Restaurant = () => {
   const { id } = useParams<{ id: string }>();
   const { data } = useQuery<restaurant, restaurantVariables>(RESTAURANT_QUERY, {
     variables: { input: { restaurantId: +id } },
   });
-  console.log(data?.restaurant.restaurant?.category);
+  const [orderStarted, setOrderStarted] = useState(false);
+  const [orderItems, setOrderItems] = useState<CreateOrderItemInput[]>([]);
+  const triggerStartOrder = () => {
+    setOrderStarted(true);
+  };
+  const addItemToOrder = (dishId: number) => {
+    setOrderItems((current) => [{ dishId, options: null }]);
+  };
+  console.log(orderItems);
 
   return (
     <div>
@@ -47,17 +65,25 @@ export const Restaurant = () => {
           </h6>
         </div>
       </div>
-      <div className="container grid mt-16 md:grid-cols-3 gap-x-5 gap-y-10">
-        {data?.restaurant?.restaurant?.menu?.map((menu, index) => (
-          <Dish
-            key={index}
-            description={menu.description}
-            name={menu.name}
-            price={menu.price}
-            isCustomer={true}
-            options={menu.options}
-          />
-        ))}
+      <div className="container flex flex-col items-end">
+        <button onClick={triggerStartOrder} className="btn px-12 mt-20">
+          Start Order
+        </button>
+        <div className="w-full grid mt-16 md:grid-cols-3 gap-x-5 gap-y-10">
+          {data?.restaurant?.restaurant?.menu?.map((menu, index) => (
+            <Dish
+              orderStarted={orderStarted}
+              key={index}
+              description={menu.description}
+              name={menu.name}
+              price={menu.price}
+              isCustomer={true}
+              options={menu.options}
+              addItemToOrder={addItemToOrder}
+              id={menu.id}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );
