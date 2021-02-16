@@ -13,11 +13,9 @@ import {
 } from "../../__generated/myRestaurant";
 import {
   VictoryAxis,
-  VictoryBar,
   VictoryChart,
   VictoryLabel,
   VictoryLine,
-  VictoryPie,
   VictoryTheme,
   VictoryTooltip,
   VictoryVoronoiContainer,
@@ -48,26 +46,15 @@ interface IParams {
   id: string;
 }
 
-const chartData = [
-  { x: 1, y: 3000 },
-  { x: 2, y: 1500 },
-  { x: 3, y: 3000 },
-  { x: 4, y: 4250 },
-  { x: 5, y: 2300 },
-  { x: 6, y: 7150 },
-  { x: 7, y: 6830 },
-  { x: 8, y: 2300 },
-  { x: 9, y: 5150 },
-  { x: 10, y: 3830 },
-];
-
 export const MyResatuarnt = () => {
   const { id } = useParams<IParams>();
-  const { data, error, loading } = useQuery<
-    myRestaurant,
-    myRestaurantVariables
-  >(MY_RESTAURANT_QUERY, { variables: { input: { id: +id } } });
-  console.log(data);
+  const { data } = useQuery<myRestaurant, myRestaurantVariables>(
+    MY_RESTAURANT_QUERY,
+    { variables: { input: { id: +id } } }
+  );
+
+  const triggerPaddle = () => {};
+
   return (
     <div>
       <div
@@ -86,9 +73,12 @@ export const MyResatuarnt = () => {
         >
           Add Dish &rarr;
         </Link>
-        <Link to={``} className="text-white bg-lime-700 py-3 px-10">
+        <span
+          onClick={triggerPaddle}
+          className="text-white bg-lime-700 py-3 px-10"
+        >
           Buy Promotion &rarr;
-        </Link>
+        </span>
         <div className="mt-10">
           {data?.myRestaurant.restaurant?.menu?.length === 0 ? (
             <h4 className="text-xl mb-5">Please upload a dish</h4>
