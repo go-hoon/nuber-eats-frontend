@@ -43,7 +43,18 @@ export const Restaurant = () => {
     setOrderStarted(true);
   };
   const addItemToOrder = (dishId: number) => {
-    setOrderItems((current) => [{ dishId, options: null }]);
+    if (orderItems.find((order) => order.dishId === dishId)) {
+      return;
+    }
+    setOrderItems((current) => [...current, { dishId, options: null }]);
+  };
+  const isSelected = (dishId: number) => {
+    return Boolean(orderItems.find((order) => order.dishId === dishId));
+  };
+  const removeFromOrder = (dishId: number) => {
+    setOrderItems((current) =>
+      current.filter((order) => order.dishId !== dishId)
+    );
   };
   console.log(orderItems);
 
@@ -67,11 +78,12 @@ export const Restaurant = () => {
       </div>
       <div className="container flex flex-col items-end">
         <button onClick={triggerStartOrder} className="btn px-12 mt-20">
-          Start Order
+          {orderStarted ? "Ordering" : "Start Order"}
         </button>
         <div className="w-full grid mt-16 md:grid-cols-3 gap-x-5 gap-y-10">
           {data?.restaurant?.restaurant?.menu?.map((menu, index) => (
             <Dish
+              isSelected={isSelected(menu.id)}
               orderStarted={orderStarted}
               key={index}
               description={menu.description}
@@ -80,6 +92,7 @@ export const Restaurant = () => {
               isCustomer={true}
               options={menu.options}
               addItemToOrder={addItemToOrder}
+              removeFromOrder={removeFromOrder}
               id={menu.id}
             />
           ))}

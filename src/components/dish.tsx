@@ -5,11 +5,13 @@ interface IDishProps {
   name: string;
   description: string;
   price: number;
+  isSelected?: boolean;
   isCustomer?: boolean;
   options?: restaurant_restaurant_restaurant_menu_options[] | null;
   orderStarted?: boolean;
   addItemToOrder?: (dishId: number) => void;
   id?: number;
+  removeFromOrder?: (dishId: number) => void;
 }
 
 export const Dish: React.FC<IDishProps> = ({
@@ -21,13 +23,26 @@ export const Dish: React.FC<IDishProps> = ({
   options,
   addItemToOrder,
   id = 0,
+  isSelected,
+  removeFromOrder,
 }) => {
+  const onClick = () => {
+    if (orderStarted) {
+      if (!isSelected && addItemToOrder) {
+        addItemToOrder(id);
+      }
+      if (isSelected && removeFromOrder) {
+        removeFromOrder(id);
+      }
+    }
+  };
+
   return (
     <div
-      onClick={() =>
-        orderStarted && addItemToOrder ? addItemToOrder(id) : null
-      }
-      className="px-8 py-4 border hover:border-gray-800 transition-all"
+      onClick={onClick}
+      className={`cursor-pointer px-8 py-4 border hover:border-gray-800 transition-all ${
+        isSelected ? "border-gray-800" : "hover:border-gray-800"
+      }`}
     >
       <div className="mb-5">
         <h3 className="text-lg font-medium">{name}</h3>
