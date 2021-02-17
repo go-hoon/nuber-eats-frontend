@@ -4,7 +4,11 @@ import { useParams } from "react-router-dom";
 import { Dish } from "../../components/dish";
 import { DISH_FRAGMENT, RESTAURANTS_FRAGMENT } from "../../fragments";
 import { CreateOrderItemInput } from "../../__generated/globalTypes";
-import { restaurant, restaurantVariables } from "../../__generated/restaurant";
+import {
+  restaurant,
+  restaurantVariables,
+  restaurant_restaurant_restaurant_menu_options,
+} from "../../__generated/restaurant";
 
 const RESTAURANT_QUERY = gql`
   query restaurant($input: RestaurantInput!) {
@@ -46,15 +50,31 @@ export const Restaurant = () => {
     if (orderItems.find((order) => order.dishId === dishId)) {
       return;
     }
-    setOrderItems((current) => [...current, { dishId, options: null }]);
+    setOrderItems((current) => [...current, { dishId, options: [] }]);
+  };
+  const getItem = (dishId: number) => {
+    return orderItems.find((order) => order.dishId === dishId);
   };
   const isSelected = (dishId: number) => {
-    return Boolean(orderItems.find((order) => order.dishId === dishId));
+    return Boolean(getItem(dishId));
   };
   const removeFromOrder = (dishId: number) => {
     setOrderItems((current) =>
       current.filter((order) => order.dishId !== dishId)
     );
+  };
+  const addOptionToItem = (dishId: number, option: any) => {
+    if (!isSelected(dishId)) {
+      return;
+    }
+    const oldItem = getItem(dishId);
+    if (oldItem) {
+      removeFromOrder(dishId);
+      setOrderItems((current) => [
+        { dishId, options: [option, ...oldItem.options!] },
+        ...current,
+      ]);
+    }
   };
   console.log(orderItems);
 
@@ -94,6 +114,7 @@ export const Restaurant = () => {
               addItemToOrder={addItemToOrder}
               removeFromOrder={removeFromOrder}
               id={menu.id}
+              addOptionToItem={addOptionToItem}
             />
           ))}
         </div>
