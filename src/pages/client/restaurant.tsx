@@ -132,7 +132,7 @@ export const Restaurant = () => {
       createOrder: { ok, orderId },
     } = data;
     if (data.createOrder.ok) {
-      history.push(`/orers/${orderId}`);
+      history.push(`/orders/${orderId}`);
       alert("Order created");
     }
   };
@@ -141,6 +141,9 @@ export const Restaurant = () => {
     createOrderVariables
   >(CREATE_ORDER_MUTATION, { onCompleted });
   const triggerConfirmOrder = () => {
+    if (placingOrder) {
+      return;
+    }
     if (orderItems.length === 0) {
       alert("Can't place an empty order");
       return;
