@@ -2,6 +2,7 @@ import { gql, useQuery } from "@apollo/client";
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import { Dish } from "../../components/dish";
+import { DishOption } from "../../components/dish-option";
 import { DISH_FRAGMENT, RESTAURANTS_FRAGMENT } from "../../fragments";
 import {
   CreateOrderInput,
@@ -66,19 +67,19 @@ export const Restaurant = () => {
       current.filter((order) => order.dishId !== dishId)
     );
   };
-  const addOptionToItem = (dishId: number, option: any) => {
+  const addOptionToItem = (dishId: number, optionName: string) => {
     if (!isSelected(dishId)) {
       return;
     }
     const oldItem = getItem(dishId);
     if (oldItem) {
       const hasOption = Boolean(
-        oldItem.options?.find((aOption) => aOption.name === option.name)
+        oldItem.options?.find((aOption) => aOption.name === optionName)
       );
       if (!hasOption) {
         removeFromOrder(dishId);
         setOrderItems((current) => [
-          { dishId, options: [option, ...oldItem.options!] },
+          { dishId, options: [{ name: optionName }, ...oldItem.options!] },
           ...current,
         ]);
       }
@@ -95,6 +96,26 @@ export const Restaurant = () => {
     if (item) {
       return Boolean(getOptionFromItem(item, optionName));
     }
+  };
+  const removeOptionFromItem = (dishId: number, optionName: string) => {
+    if (!isSelected(dishId)) {
+      return;
+    }
+    const oldItem = getItem(dishId);
+
+    if (oldItem) {
+      removeFromOrder(dishId);
+      setOrderItems((current) => [
+        {
+          dishId,
+          options: oldItem.options?.filter(
+            (option) => option.name !== optionName
+          ),
+        },
+        ...current,
+      ]);
+    }
+    return;
   };
   console.log(orderItems);
 
@@ -137,24 +158,15 @@ export const Restaurant = () => {
               <div>
                 <h5 className="mt-8 font-medium">Options</h5>
                 {menu.options?.map((option, index) => (
-                  <span
-                    onClick={() =>
-                      addOptionToItem
-                        ? addOptionToItem(menu.id, {
-                            name: option.name,
-                          })
-                        : null
-                    }
-                    className={`flex border items-center ${
-                      isOptionSelected(menu.id, option.name)
-                        ? "border-gray-800"
-                        : null
-                    }`}
+                  <DishOption
                     key={index}
-                  >
-                    <h6 className="mr-2">{option.name}</h6>
-                    <h6 className="text-sm opacity-75">(+${option.extra})</h6>
-                  </span>
+                    isSelected={isOptionSelected(menu.id, option.name)}
+                    name={option.name}
+                    extra={option.extra}
+                    addOptionToItem={addOptionToItem}
+                    removeOptionFromItem={removeOptionFromItem}
+                    dishId={menu.id}
+                  />
                 ))}
               </div>
             </Dish>
