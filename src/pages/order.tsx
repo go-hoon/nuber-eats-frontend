@@ -1,5 +1,6 @@
 import { gql, useQuery, useSubscription } from "@apollo/client";
-import React from "react";
+import { toSafeInteger } from "cypress/types/lodash";
+import React, { useEffect } from "react";
 import { Helmet } from "react-helmet-async";
 import { useParams } from "react-router-dom";
 import { FULL_ORDER_FRAGMENT } from "../fragments";
@@ -37,14 +38,45 @@ interface IParams {
 
 export const Order = () => {
   const { id } = useParams<IParams>();
-  const { data } = useQuery<getOrder, getOrderVariables>(GET_ORDER, {
-    variables: { input: { id: +id } },
+  const { data, subscribeToMore } = useQuery<getOrder, getOrderVariables>(
+    GET_ORDER,
+    {
+      variables: { input: { id: +id } },
+    }
+  );
+
+  useEffect(() => {
+    if (data?.getOrder.ok) {
+      subscribeToMore({
+        document: ORDER_SUBSCRIPTION,
+        variables: {
+          input: {
+            id: +id,
+          },
+        },
+        updateQuery: (
+          prev,
+          {
+            subscriptionData: { data },
+          }: { subscriptionData: { data: orderUpdates } }
+        ) => {
+          if (!data) {
+            return prev;
+          } else {
+            return {
+              getOrder: {
+                ...prev.getOrder,
+                order: {
+                  ...data.orderUpdates,
+                },
+              },
+            };
+          }
+        },
+      });
+    }
   });
-  const { data: subscriptionData } = useSubscription<
-    orderUpdates,
-    orderUpdatesVariables
-  >(ORDER_SUBSCRIPTION, { variables: { input: { id: +id } } });
-  console.log(subscriptionData);
+
   return (
     <div className="mt-32 container flex justify-center">
       <Helmet>
