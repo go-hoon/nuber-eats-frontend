@@ -38,6 +38,9 @@ const ownerRoutes = [
 
 export const LoggedInRouter = () => {
   const { data, loading, error } = useMe();
+  console.log(data);
+  console.log(loading);
+  console.log(error);
   if (!data || loading || error) {
     return (
       <div className="h-screen flex justify-center items-center">
