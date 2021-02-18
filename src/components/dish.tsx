@@ -27,6 +27,7 @@ export const Dish: React.FC<IDishProps> = ({
   isSelected,
   removeFromOrder,
   addOptionToItem,
+  children: dishOptions,
 }) => {
   const onClick = () => {
     if (orderStarted) {
@@ -55,27 +56,7 @@ export const Dish: React.FC<IDishProps> = ({
         <h4 className="font-medium">{description}</h4>
       </div>
       <span>${price}</span>
-      {isCustomer && options && (
-        <div>
-          <h5 className="mt-8 font-medium">Options</h5>
-          {options?.map((option, index) => (
-            <span
-              onClick={() =>
-                addOptionToItem
-                  ? addOptionToItem(id, {
-                      name: option.name,
-                    })
-                  : null
-              }
-              className="flex border items-center"
-              key={index}
-            >
-              <h6 className="mr-2">{option.name}</h6>
-              <h6 className="text-sm opacity-75">(+${option.extra})</h6>
-            </span>
-          ))}
-        </div>
-      )}
+      {dishOptions}
     </div>
   );
 };

@@ -3,7 +3,10 @@ import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import { Dish } from "../../components/dish";
 import { DISH_FRAGMENT, RESTAURANTS_FRAGMENT } from "../../fragments";
-import { CreateOrderItemInput } from "../../__generated/globalTypes";
+import {
+  CreateOrderInput,
+  CreateOrderItemInput,
+} from "../../__generated/globalTypes";
 import {
   restaurant,
   restaurantVariables,
@@ -69,11 +72,28 @@ export const Restaurant = () => {
     }
     const oldItem = getItem(dishId);
     if (oldItem) {
-      removeFromOrder(dishId);
-      setOrderItems((current) => [
-        { dishId, options: [option, ...oldItem.options!] },
-        ...current,
-      ]);
+      const hasOption = Boolean(
+        oldItem.options?.find((aOption) => aOption.name === option.name)
+      );
+      if (!hasOption) {
+        removeFromOrder(dishId);
+        setOrderItems((current) => [
+          { dishId, options: [option, ...oldItem.options!] },
+          ...current,
+        ]);
+      }
+    }
+  };
+  const getOptionFromItem = (
+    item: CreateOrderItemInput,
+    optionName: string
+  ) => {
+    return item.options?.find((option) => option.name === optionName);
+  };
+  const isOptionSelected = (dishId: number, optionName: string) => {
+    const item = getItem(dishId);
+    if (item) {
+      return Boolean(getOptionFromItem(item, optionName));
     }
   };
   console.log(orderItems);
@@ -109,13 +129,35 @@ export const Restaurant = () => {
               description={menu.description}
               name={menu.name}
               price={menu.price}
-              isCustomer={true}
-              options={menu.options}
               addItemToOrder={addItemToOrder}
               removeFromOrder={removeFromOrder}
               id={menu.id}
               addOptionToItem={addOptionToItem}
-            />
+            >
+              <div>
+                <h5 className="mt-8 font-medium">Options</h5>
+                {menu.options?.map((option, index) => (
+                  <span
+                    onClick={() =>
+                      addOptionToItem
+                        ? addOptionToItem(menu.id, {
+                            name: option.name,
+                          })
+                        : null
+                    }
+                    className={`flex border items-center ${
+                      isOptionSelected(menu.id, option.name)
+                        ? "border-gray-800"
+                        : null
+                    }`}
+                    key={index}
+                  >
+                    <h6 className="mr-2">{option.name}</h6>
+                    <h6 className="text-sm opacity-75">(+${option.extra})</h6>
+                  </span>
+                ))}
+              </div>
+            </Dish>
           ))}
         </div>
       </div>
