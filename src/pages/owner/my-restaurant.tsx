@@ -73,7 +73,7 @@ export const MyResatuarnt = () => {
     if (subscriptionData?.pendingOrders.id) {
       history.push(`/orders/${subscriptionData.pendingOrders.id}`);
     }
-  }, [subscriptionData]);
+  }, [subscriptionData, history]);
 
   const triggerPaddle = () => {};
 

@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import GoogleMapReact from "google-map-react";
-import { gql, useSubscription } from "@apollo/client";
+import { gql, useMutation, useSubscription } from "@apollo/client";
 import { FULL_ORDER_FRAGMENT } from "../../fragments";
 import { cookedOrders } from "../../__generated/cookedOrders";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
+import { takeOrder, takeOrderVariables } from "../../__generated/takeOrder";
 
 const COOKED_ORDERS_SUBSCRIPTION = gql`
   subscription cookedOrders {
@@ -12,6 +13,15 @@ const COOKED_ORDERS_SUBSCRIPTION = gql`
     }
   }
   ${FULL_ORDER_FRAGMENT}
+`;
+
+const TAKE_ORDER_MUTATION = gql`
+  mutation takeOrder($input: TakeOrderInput!) {
+    takeOrder(input: $input) {
+      ok
+      error
+    }
+  }
 `;
 
 interface ICoords {
@@ -27,10 +37,20 @@ interface IDriverProps {
 const Driver: React.FC<IDriverProps> = () => <div className="text-lg">🚖</div>;
 
 export const Dashboard = () => {
+  const history = useHistory();
+  const onCompleted = (data: takeOrder) => {
+    if (data.takeOrder.ok) {
+      history.push(`orders/${cookedOrderData?.cookedOrders.id}`);
+    }
+  };
   const [driverCoords, setDriverCoords] = useState<ICoords>({ lng: 0, lat: 0 });
   const [map, setMap] = useState<google.maps.Map>();
   const { data: cookedOrderData } = useSubscription<cookedOrders>(
     COOKED_ORDERS_SUBSCRIPTION
+  );
+  const [takeOrderMutation] = useMutation<takeOrder, takeOrderVariables>(
+    TAKE_ORDER_MUTATION,
+    { onCompleted }
   );
 
   useEffect(() => {
@@ -69,6 +89,13 @@ export const Dashboard = () => {
   const onApiLoaded = ({ map, maps }: { map: any; maps: any }) => {
     map.panTo(new google.maps.LatLng(driverCoords.lat, driverCoords.lng));
     setMap(map);
+  };
+  const triggerMutation = () => {
+    if (cookedOrderData?.cookedOrders.id) {
+      takeOrderMutation({
+        variables: { input: { id: cookedOrderData?.cookedOrders.id } },
+      });
+    }
   };
   const makeRoute = () => {
     if (map) {
@@ -125,12 +152,12 @@ export const Dashboard = () => {
             <h4 className="text-center my-3 text-2xl">
               Pick it up soon @ {cookedOrderData?.cookedOrders.restaurant?.name}
             </h4>
-            <Link
-              to={`/orders/${cookedOrderData.cookedOrders.id}`}
+            <button
+              onClick={() => triggerMutation()}
               className="btn w-full mt-5 block text-center"
             >
               Accept Chanllenge &rarr;
-            </Link>
+            </button>
           </>
         ) : (
           <h1 className="text-center my-3 text-3xl">No orders yet!</h1>
