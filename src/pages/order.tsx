@@ -1,12 +1,13 @@
-import { gql, useQuery, useSubscription } from "@apollo/client";
+import { gql, useMutation, useQuery, useSubscription } from "@apollo/client";
 import { toSafeInteger } from "cypress/types/lodash";
 import React, { useEffect } from "react";
 import { Helmet } from "react-helmet-async";
 import { useParams } from "react-router-dom";
 import { FULL_ORDER_FRAGMENT } from "../fragments";
 import { useMe } from "../hooks/useMe";
+import { editOrder, editOrderVariables } from "../__generated/editOrder";
 import { getOrder, getOrderVariables } from "../__generated/getOrder";
-import { UserRole } from "../__generated/globalTypes";
+import { OrderStatus, UserRole } from "../__generated/globalTypes";
 import {
   orderUpdates,
   orderUpdatesVariables,
@@ -25,6 +26,15 @@ const GET_ORDER = gql`
   ${FULL_ORDER_FRAGMENT}
 `;
 
+const EDIT_ORDER = gql`
+  mutation editOrder($input: EditOrderInput!) {
+    editOrder(input: $input) {
+      ok
+      error
+    }
+  }
+`;
+
 const ORDER_SUBSCRIPTION = gql`
   subscription orderUpdates($input: OrderUpdatesInput!) {
     orderUpdates(input: $input) {
@@ -41,12 +51,19 @@ interface IParams {
 export const Order = () => {
   const { id } = useParams<IParams>();
   const { data: userData } = useMe();
+  const [editOrderMutation] = useMutation<editOrder, editOrderVariables>(
+    EDIT_ORDER
+  );
   const { data, subscribeToMore } = useQuery<getOrder, getOrderVariables>(
     GET_ORDER,
     {
       variables: { input: { id: +id } },
     }
   );
+
+  const onButtonClick = (newStatus: OrderStatus) => {
+    editOrderMutation({ variables: { input: { id: +id, status: newStatus } } });
+  };
 
   useEffect(() => {
     if (data?.getOrder.ok) {
@@ -116,14 +133,30 @@ export const Order = () => {
               Status: {data?.getOrder.order?.status}
             </span>
           )}
-          {userData?.me.role === "Owner" && (
+          {userData?.me.role === UserRole.Owner && (
             <>
-              {data?.getOrder.order?.status === "Pending" && (
-                <button>Accept order</button>
+              {data?.getOrder.order?.status === OrderStatus.Pending && (
+                <button
+                  onClick={() => onButtonClick(OrderStatus.Cooking)}
+                  className="btn"
+                >
+                  Accept order
+                </button>
               )}
-              {data?.getOrder.order?.status === "Cooking" && (
-                <button>Order Cooked</button>
+              {data?.getOrder.order?.status === OrderStatus.Cooking && (
+                <button
+                  onClick={() => onButtonClick(OrderStatus.Cooked)}
+                  className="btn"
+                >
+                  Order Cooked
+                </button>
               )}
+              {data?.getOrder.order?.status !== OrderStatus.Cooking &&
+                data?.getOrder.order?.status !== OrderStatus.Pending && (
+                  <span className=" text-center mt-5 mb-3  text-2xl text-lime-600">
+                    Status: {data?.getOrder.order?.status}
+                  </span>
+                )}
             </>
           )}
         </div>
