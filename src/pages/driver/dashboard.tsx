@@ -48,6 +48,33 @@ export const Dashboard = () => {
     map.panTo(new google.maps.LatLng(driverCoords.lat, driverCoords.lng));
     setMap(map);
   };
+  const onGetRouteClick = () => {
+    if (map) {
+      const directionsService = new google.maps.DirectionsService();
+      const directionsRenderer = new google.maps.DirectionsRenderer();
+      directionsRenderer.setMap(map);
+      directionsService.route(
+        {
+          origin: {
+            location: new google.maps.LatLng(
+              driverCoords.lat,
+              driverCoords.lng
+            ),
+          },
+          destination: {
+            location: new google.maps.LatLng(
+              driverCoords.lat + 0.05,
+              driverCoords.lng + 0.05
+            ),
+          },
+          travelMode: google.maps.TravelMode.DRIVING,
+        },
+        (result, status) => {
+          directionsRenderer.setDirections(result);
+        }
+      );
+    }
+  };
   return (
     <div>
       <div
@@ -59,15 +86,19 @@ export const Dashboard = () => {
           onGoogleApiLoaded={onApiLoaded}
           defaultZoom={16}
           draggable={false}
+          resetBoundsOnResize
           defaultCenter={{
             lat: 36.58,
             lng: 125.95,
           }}
           bootstrapURLKeys={{ key: "AIzaSyDERrmnPNGJyjFrN1R-0cNEAk3JwxLW4lc" }}
         >
-          <Driver lat={driverCoords.lat} lng={driverCoords.lng} />
+          {/* <Driver lat={driverCoords.lat} lng={driverCoords.lng} /> */}
         </GoogleMapReact>
       </div>
+      <button className="btn" onClick={onGetRouteClick}>
+        Get Route
+      </button>
     </div>
   );
 };
